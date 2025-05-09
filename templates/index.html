@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crime Likelihood Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body class="light-mode">
+
+    <div class="hero">
+        <div class="overlay">
+            <h1>Crime Prediction in Los Angeles</h1>
+            <p>Predict crime likelihood based on demographics and geography</p>
+            <button id="toggleMode">Toggle Dark Mode</button>
+        </div>
+    </div>
+
+    <main class="main-grid">
+        <section class="card form-card">
+            <h2>Enter Victim Details</h2>
+            <form method="post" action="/predict" onsubmit="showSpinner()">
+                <div class="form-section">
+                    <h4>Demographics</h4>
+
+                    <label for="victim_sex">Sex:</label>
+                    <select name="victim_sex" id="victim_sex" required>
+                        {% for sex in uniqueSex %}
+                        <option value="{{ sex }}">{{ sex }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label for="victim_descent">Descent:</label>
+                    <select name="victim_descent" id="victim_descent" required>
+                        {% for descent in uniqueDescent %}
+                        <option value="{{ descent }}">{{ descent }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label for="age_bracket">Age Bracket:</label>
+                    <select name="age_bracket" id="age_bracket" required>
+                        {% for bracket in uniqueAge %}
+                        <option value="{{ bracket }}">{{ bracket }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-section">
+                    <h4>Crime Context</h4>
+
+                    <label for="time_slot">Time Slot:</label>
+                    <select name="time_slot" id="time_slot" required>
+                        {% for slot in uniqueTime %}
+                        <option value="{{ slot }}">{{ slot }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label for="area_name">Area Name:</label>
+                    <select name="area_name" id="area_name" required>
+                        {% for area in uniqueArea %}
+                        <option value="{{ area }}">{{ area }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit">Predict</button>
+            </form>
+
+            <div id="spinner" class="spinner" style="display: none;"></div>
+
+            <div id="prediction-anchor"></div>
+
+            {% if prediction %}
+            <div class="prediction-box fade-in {{ prediction|lower|replace(' ', '-') }}">
+                <strong>Crime Likelihood:</strong> {{ prediction }}
+            </div>
+            {% endif %}
+        </section>
+
+        <section class="card image-card">
+
+            {% if modelName %}
+            <p style="text-align:center; margin-top: 15px; font-size: large;">
+                Currently active model: <strong>{{ modelName }}</strong>
+            </p>
+
+            <h2>Model Accuracy Comparison</h2>
+            <img src="{{ url_for('static', filename='accuracies.jpeg') }}" alt="Accuracy Chart">
+        
+            <h2 style="margin-top: 30px;">Computation Time Comparison</h2>
+            <img src="{{ url_for('static', filename='computations.jpeg') }}" alt="Computation Time Chart">
+
+            {% endif %}
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Crime Prediction App • Flask and ML</p>
+    </footer>
+
+    <script>
+        function showSpinner() {
+            document.getElementById("spinner").style.display = "block";
+        }
+
+        document.getElementById("toggleMode").onclick = () => {
+            document.body.classList.toggle("dark-mode");
+            document.body.classList.toggle("light-mode");
+        };
+        const predictionExists = "{{ 'true' if prediction else 'false' }}" === "true";
+        const isPost = "{{ method }}" === "POST";
+        window.onload = function() {
+        const anchor = document.getElementById("prediction-anchor");
+        if (anchor && predictionExists && isPost) {
+            anchor.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+    </script>
+</body>
+</html>
